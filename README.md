@@ -33,7 +33,9 @@
 - Accessed the Wazuh machine via terminal 
   -	Clicked Access Access and Launch Droplet Console
 ![image](https://github.com/Mutimber/SOC-Automation-Lab/assets/113706552/93e12d58-a6fa-46e5-84d2-d5d6daf883ad)
--	Updated and upgraded the machine using apt-get update && apt-get upgrade command
+-	Updated and upgraded the machine using
+
+ 		apt-get update && apt-get upgrade 
 ![image](https://github.com/Mutimber/SOC-Automation-Lab/assets/113706552/69d74b87-8567-4b71-aa18-5030c297664d)
 
 -	Enter Y when prompted then press Enter when prompted to fully update the machine.
@@ -44,7 +46,9 @@
 ![image](https://github.com/Mutimber/SOC-Automation-Lab/assets/113706552/6bc60dc0-7324-442c-b17c-88fc36fa3ee4)
 
 -	Installed Wazuh on the Ubuntu machine
--	command : curl -sO https://packages.wazuh.com/4.7/wazuh-install.sh && sudo bash ./wazuh-install.sh -a
+-	command:
+
+		curl -sO https://packages.wazuh.com/4.7/wazuh-install.sh && sudo bash ./wazuh-install.sh -a
 ![image](https://github.com/Mutimber/SOC-Automation-Lab/assets/113706552/b8954035-7de4-4ea6-a6c4-d6fe534cbf0f)
 
 -	Noted the login credentials for Wazuh dashboard access 
@@ -58,7 +62,9 @@
 ![image](https://github.com/Mutimber/SOC-Automation-Lab/assets/113706552/7f5afa53-27c8-4971-9c01-03476bfc5f69)
 
 -	Enter Wazuh credentials from before to access the dashboard
--	Wazuh credentials are also accessible via: sudo tar -xvf wazuh-install-files.tar
+-	Wazuh credentials are also accessible via:
+
+ 		sudo tar -xvf wazuh-install-files.tar
 ![image](https://github.com/Mutimber/SOC-Automation-Lab/assets/113706552/45c2faf0-e1af-4b0c-81b4-5b7868ee1e04)
 
 ![image](https://github.com/Mutimber/SOC-Automation-Lab/assets/113706552/42e7d654-4590-4be3-b982-fc053ca67575)
@@ -93,69 +99,93 @@
 
 ### Install 5 hive dependencies
 #### Java 
-wget -qO- https://apt.corretto.aws/corretto.key | sudo gpg --dearmor  -o /usr/share/keyrings/corretto.gpg
-echo "deb [signed-by=/usr/share/keyrings/corretto.gpg] https://apt.corretto.aws stable main" |  sudo tee -a /etc/apt/sources.list.d/corretto.sources.list
-sudo apt update
-sudo apt install java-common java-11-amazon-corretto-jdk
-echo JAVA_HOME="/usr/lib/jvm/java-11-amazon-corretto" | sudo tee -a /etc/environment 
-export JAVA_HOME="/usr/lib/jvm/java-11-amazon-corretto"
+	wget -qO- https://apt.corretto.aws/corretto.key | sudo gpg --dearmor  -o /usr/share/keyrings/corretto.gpg
+	echo "deb [signed-by=/usr/share/keyrings/corretto.gpg] https://apt.corretto.aws stable main" |  sudo tee -a /etc/apt/sources.list.d/corretto.sources.list
+	sudo apt update
+	sudo apt install java-common java-11-amazon-corretto-jdk
+	echo JAVA_HOME="/usr/lib/jvm/java-11-amazon-corretto" | sudo tee -a /etc/environment 
+	export JAVA_HOME="/usr/lib/jvm/java-11-amazon-corretto"
 
 #### Install Cassandra
-wget -qO -  https://downloads.apache.org/cassandra/KEYS | sudo gpg --dearmor  -o /usr/share/keyrings/cassandra-archive.gpg
-echo "deb [signed-by=/usr/share/keyrings/cassandra-archive.gpg] https://debian.cassandra.apache.org 40x main" |  sudo tee -a /etc/apt/sources.list.d/cassandra.sources.list
-sudo apt update
-sudo apt install cassandra
+	wget -qO -  https://downloads.apache.org/cassandra/KEYS | sudo gpg --dearmor  -o /usr/share/keyrings/cassandra-archive.gpg
+	echo "deb [signed-by=/usr/share/keyrings/cassandra-archive.gpg] https://debian.cassandra.apache.org 40x main" |  sudo tee -a /etc/apt/sources.list.d/cassandra.sources.list
+	sudo apt update
+	sudo apt install cassandra
 
 #### Install ElasticSearch
-wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch |  sudo gpg --dearmor -o /usr/share/keyrings/elasticsearch-keyring.gpg
-sudo apt-get install apt-transport-https
-echo "deb [signed-by=/usr/share/keyrings/elasticsearch-keyring.gpg] https://artifacts.elastic.co/packages/7.x/apt stable main" |  sudo tee /etc/apt/sources.list.d/elastic-7.x.list
-sudo apt update
-sudo apt install elasticsearch
+	wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch |  sudo gpg --dearmor -o /usr/share/keyrings/elasticsearch-keyring.gpg
+	sudo apt-get install apt-transport-https
+	echo "deb [signed-by=/usr/share/keyrings/elasticsearch-keyring.gpg] https://artifacts.elastic.co/packages/7.x/apt stable main" |  sudo tee /etc/apt/sources.list.d/elastic-7.x.list
+	sudo apt update
+	sudo apt install elasticsearch
 
 #### Install TheHive
-wget -O- https://archives.strangebee.com/keys/strangebee.gpg | sudo gpg --dearmor -o /usr/share/keyrings/strangebee-archive-keyring.gpg
-echo 'deb [signed-by=/usr/share/keyrings/strangebee-archive-keyring.gpg] https://deb.strangebee.com thehive-5.2 main' | sudo tee -a /etc/apt/sources.list.d/strangebee.list
-sudo apt-get update
-sudo apt-get install -y thehive
+	wget -O- https://archives.strangebee.com/keys/strangebee.gpg | sudo gpg --dearmor -o /usr/share/keyrings/strangebee-archive-keyring.gpg
+	echo 'deb [signed-by=/usr/share/keyrings/strangebee-archive-keyring.gpg] https://deb.strangebee.com thehive-5.2 main' | sudo tee -a /etc/apt/sources.list.d/strangebee.list
+	sudo apt-get update
+	sudo apt-get install -y thehive
 
 
 ## Configure Wazuh and thehive
 ### The Hive 
--	Cassandra: nano /etc/cassandra/cassandra.yaml 
+-	Cassandra
+
+		nano /etc/cassandra/cassandra.yaml 
   -	Customize listen address to thehive public IP
   -	Change rpc address to thehive public IP
   -	Edit cluster name to preferred title
   -	Save and exit nano
   -	Change seed provider to thehive public IP:7000
-  -	Stop cassandra: systemctl stop cassandra.service
-  -	Remove all files from cassandra: rm -rf /var/lib/cassandra/*
-  -	Start cassandra: systemctl start cassandra.service
-  -	Check status: systemctl status cassandra.service
+  -	Stop cassandra:
+
+		systemctl stop cassandra.service
+  -	Remove all files from cassandra:
+	
+		rm -rf /var/lib/cassandra/*
+  -	Start cassandra:
+
+		systemctl start cassandra.service
+  -	Check status:
+
+   		systemctl status cassandra.service
 
 ![image](https://github.com/Mutimber/SOC-Automation-Lab/assets/113706552/8267d1a3-7f96-42b0-a0c7-b5597597efdc)
 
 ### Elastic Stack 
   -	Used in querying data
-  -	Configure it:  nano /etc/elasticsearch/elasticsearch.yml
+  -	Configure it:
+
+		nano /etc/elasticsearch/elasticsearch.yml
       -	Uncomment cluster.name, change name to ‘thehive’
       -	Uncomment node.name
       -	Uncomment network.host, change the IP to thehive VM public IP
       -	Uncomment http.port
       -	Uncomment cluster.initial_master_nodes, delete node-2
-  -	Start elasticsearch: systemctl start elasticsearch
-  -	Enable service: systemctl enable elasticsearch
-  -	Check status: systemctl status elasticsearch
+  -	Start elasticsearch:
+
+		systemctl start elasticsearch
+  -	Enable service:
+
+		systemctl enable elasticsearch
+  -	Check status:
+
+		systemctl status elasticsearch
 ![image](https://github.com/Mutimber/SOC-Automation-Lab/assets/113706552/7ad311da-4858-48b2-a6c3-da6107410c79)
 
 -	Doublecheck cassandra, it often stalls
 -	Now configure thehive:
-  -	Check thehive owner:  ls -la /opt/thp
+  -	Check thehive owner:
+
+		ls -la /opt/thp
 ![image](https://github.com/Mutimber/SOC-Automation-Lab/assets/113706552/2e34b5eb-a63f-445a-b998-7308d1ea4b5e)
--	Change owner: chown -R thehive:thehive /opt/thp
+-	Change owner:
+
+		chown -R thehive:thehive /opt/thp
 ![image](https://github.com/Mutimber/SOC-Automation-Lab/assets/113706552/8f500a75-0072-44ce-8200-64f42732989d)
 
--	Configure thehive file: nano /etc/thehive/application.conf
+-	Configure thehive file:
+
+		nano /etc/thehive/application.conf
   -	Change hostname to thehive public IP
   -	Change application.baseURL to public IP
   -	Change cluster name to one set earlier in cassandra 
@@ -172,10 +202,12 @@ sudo apt-get install -y thehive
   -	If it doesnt work, elasticsearch may be down
 ![image](https://github.com/Mutimber/SOC-Automation-Lab/assets/113706552/486ef158-b2d1-44be-aaa1-9d81fbcf6f4d)
 -	Therefore, create a jvm.options file under /etc/elasticsearch/jvm.options.d and put the following configurations in that file.
-  -Dlog4j2.formatMsgNoLookups=true
-  -Xms2g
-  -Xmx2g
--	nano /etc/elasticsearch/jvm.options.d/jvm.options
+
+		-Dlog4j2.formatMsgNoLookups=true
+		-Xms2g
+		-Xmx2g
+
+ 		nano /etc/elasticsearch/jvm.options.d/jvm.options
 -	Dashboard becomes accessible from the correction 
 
 ![image](https://github.com/Mutimber/SOC-Automation-Lab/assets/113706552/175a8c7a-bf75-4a40-b005-6febd42229b9)
@@ -186,7 +218,8 @@ sudo apt-get install -y thehive
   -	Choose Windows, our agent 
   -	Add Wazuh public IP address as the server address; 45.55.202.84
   -	Copy the code and run it on Windows Powershell - Run as admin
-  Invoke-WebRequest -Uri https://packages.wazuh.com/4.x/windows/wazuh-agent-4.7.3-1.msi -OutFile ${env.tmp}\wazuh-agent; msiexec.exe /i ${env.tmp}\wazuh-agent /q WAZUH_MANAGER='45.55.202.84' WAZUH_AGENT_NAME='Robin' WAZUH_REGISTRATION_SERVER='45.55.202.84' 
+  
+		Invoke-WebRequest -Uri https://packages.wazuh.com/4.x/windows/wazuh-agent-4.7.3-1.msi -OutFile ${env.tmp}\wazuh-agent; msiexec.exe /i ${env.tmp}\wazuh-agent /q WAZUH_MANAGER='45.55.202.84' WAZUH_AGENT_NAME='Robin' WAZUH_REGISTRATION_SERVER='45.55.202.84' 
   -	Start the wazuh service: net start wazuhsvc
 ![image](https://github.com/Mutimber/SOC-Automation-Lab/assets/113706552/a37c7eaf-be78-450b-8f51-ff2f851cd393)
 ![image](https://github.com/Mutimber/SOC-Automation-Lab/assets/113706552/ca81fbf8-a69e-4e86-92d7-39a75f1ca667)
@@ -198,7 +231,7 @@ sudo apt-get install -y thehive
 - Click on Security Events to start querying for events
 
 ### Generate Telemetry and send traffic from Windows to Wazuh
-	- In Windows, go to search bar and find ossec.conf file found in Program Files x86
+- In Windows, go to search bar and find ossec.conf file found in Program Files x86
 	- Edit the file with notepad admin privileges, adding sysmon file location in the code and deleting security and system set ups.
 	- In wazuh security events, search for sysmon
 ![image](https://github.com/Mutimber/SOC-Automation-Lab/assets/113706552/fbf989eb-c384-405c-a0c4-ab55a8077f5b)
@@ -224,8 +257,8 @@ sudo apt-get install -y thehive
 ![image](https://github.com/Mutimber/SOC-Automation-Lab/assets/113706552/5047498a-8a40-4a19-aef5-3f16b7411314)
 
 ## Connect Shuffle - SOAR Platform
-	- Sends an alert to the Hive
-	- Email the SOC Analyst
+ - Sends an alert to the Hive
+ - Email the SOC Analyst
 - Create an account at Shuffle.io
 - Create new workflow
 ![image](https://github.com/Mutimber/SOC-Automation-Lab/assets/113706552/abb18943-c52f-40c3-939f-de787f5c968e)
@@ -234,12 +267,12 @@ sudo apt-get install -y thehive
 
 - Copy webhook URI and edit the integration code in /var/ossec/etc/ossec.conf file
 ### Integrating Wazuh with Shuffle
-<integration>
-<name>shuffle</name>
-<hook_url>https://shuffler.io/api/v1/hooks/webhook_cbac39b1-eb55-4531-b4e8-078703a12ee3 </hook-url>
-<rule_id>100002</rule_id>
-<alert_format>json</alert_format>
-</integration>
+	<integration>
+	<name>shuffle</name>
+	<hook_url>https://shuffler.io/api/v1/hooks/webhook_cbac39b1-eb55-4531-b4e8-078703a12ee3 </hook-url>
+	<rule_id>100002</rule_id>
+	<alert_format>json</alert_format>
+	</integration>
 
 ![image](https://github.com/Mutimber/SOC-Automation-Lab/assets/113706552/a14d9809-7f8b-430e-8acb-f628c57da0c2)
 - Restart wazuh manager and check status
