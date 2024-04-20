@@ -189,5 +189,135 @@ sudo apt-get install -y thehive
   Invoke-WebRequest -Uri https://packages.wazuh.com/4.x/windows/wazuh-agent-4.7.3-1.msi -OutFile ${env.tmp}\wazuh-agent; msiexec.exe /i ${env.tmp}\wazuh-agent /q WAZUH_MANAGER='45.55.202.84' WAZUH_AGENT_NAME='Robin' WAZUH_REGISTRATION_SERVER='45.55.202.84' 
   -	Start the wazuh service: net start wazuhsvc
 ![image](https://github.com/Mutimber/SOC-Automation-Lab/assets/113706552/a37c7eaf-be78-450b-8f51-ff2f851cd393)
+![image](https://github.com/Mutimber/SOC-Automation-Lab/assets/113706552/ca81fbf8-a69e-4e86-92d7-39a75f1ca667)
+  - Agent is connected to Wazuh
+![image](https://github.com/Mutimber/SOC-Automation-Lab/assets/113706552/32c9ac4e-23b9-4cf5-9ec7-86ed4c6158de)
+
+![image](https://github.com/Mutimber/SOC-Automation-Lab/assets/113706552/7e039d3c-5de0-41ac-8169-2c0a2f3c17b5)
+
+- Click on Security Events to start querying for events
+
+### Generate Telemetry and send traffic from Windows to Wazuh
+	- In Windows, go to search bar and find ossec.conf file found in Program Files x86
+	- Edit the file with notepad admin privileges, adding sysmon file location in the code and deleting security and system set ups.
+	- In wazuh security events, search for sysmon
+![image](https://github.com/Mutimber/SOC-Automation-Lab/assets/113706552/fbf989eb-c384-405c-a0c4-ab55a8077f5b)
+
+- Download mimikatz to the agent
+	- First  exclude mimikatz from Windows sec check	
+ ![image](https://github.com/Mutimber/SOC-Automation-Lab/assets/113706552/d173de70-5b01-4b1b-b659-a9a161aa4df6)
+ 	- Exclude downloads folder
+![image](https://github.com/Mutimber/SOC-Automation-Lab/assets/113706552/5e253ca6-bcaa-48c5-bfe2-0b78a27278a7)
+- Download and extract mimikatz files
+- In powershell admin terminal, cd to mimikatz x64 address: 
+- Launch mimikatz
+![image](https://github.com/Mutimber/SOC-Automation-Lab/assets/113706552/5ddd6226-40c3-41d8-bc1c-7ba8ae9ba02b)
+- Check mimikatz events in wazuh
+- Modify ossec config to log everything
+![image](https://github.com/Mutimber/SOC-Automation-Lab/assets/113706552/6159c69e-3f6b-42f4-a39a-b4d5b7105ded)
+- Update archives logging to true in filebeat then restart service
+- In Wazuh, go to Management > Stack Management > Index Patterns > Create index for archives
+![image](https://github.com/Mutimber/SOC-Automation-Lab/assets/113706552/9974bb60-22fe-44ff-9d70-b3b581116ff2)
+![image](https://github.com/Mutimber/SOC-Automation-Lab/assets/113706552/727693fc-76ab-4130-b6b0-48a6a39fb3aa)
+- Custom rule for mimikatz detection
+![image](https://github.com/Mutimber/SOC-Automation-Lab/assets/113706552/d247d92d-b064-43df-8d30-dba2eccad86b)
+![image](https://github.com/Mutimber/SOC-Automation-Lab/assets/113706552/5047498a-8a40-4a19-aef5-3f16b7411314)
+
+## Connect Shuffle - SOAR Platform
+	- Sends an alert to the Hive
+	- Email the SOC Analyst
+- Create an account at Shuffle.io
+- Create new workflow
+![image](https://github.com/Mutimber/SOC-Automation-Lab/assets/113706552/abb18943-c52f-40c3-939f-de787f5c968e)
+
+![image](https://github.com/Mutimber/SOC-Automation-Lab/assets/113706552/0becb509-435f-493f-86e2-a6fb3f46f13a)
+
+- Copy webhook URI and edit the integration code in /var/ossec/etc/ossec.conf file
+### Integrating Wazuh with Shuffle
+<integration>
+<name>shuffle</name>
+<hook_url>https://shuffler.io/api/v1/hooks/webhook_cbac39b1-eb55-4531-b4e8-078703a12ee3 </hook-url>
+<rule_id>100002</rule_id>
+<alert_format>json</alert_format>
+</integration>
+
+![image](https://github.com/Mutimber/SOC-Automation-Lab/assets/113706552/a14d9809-7f8b-430e-8acb-f628c57da0c2)
+- Restart wazuh manager and check status
+![image](https://github.com/Mutimber/SOC-Automation-Lab/assets/113706552/ed5db626-3d9e-4327-95ea-7419545a1709)
+- Rerun mimikatz on client
+![image](https://github.com/Mutimber/SOC-Automation-Lab/assets/113706552/bf332610-758e-4a69-8927-422792575384)
+
+- View Workflows on Shuffle
+![image](https://github.com/Mutimber/SOC-Automation-Lab/assets/113706552/afd0db5a-4296-4351-93d1-e22ca7c37cd4)
+
+![image](https://github.com/Mutimber/SOC-Automation-Lab/assets/113706552/4069b6ee-9087-4c8e-a0bb-c231297e09eb)
+
+![image](https://github.com/Mutimber/SOC-Automation-Lab/assets/113706552/0e3bdbb9-59da-41cf-953b-8d0875bceb71)
+
+#### Workflow 
+- Mimikatz alerts sent to shuffle
+- Shuffle receives alert - extracts SHA256 Hash from file
+- Check reputation score with VirusTotal
+- Send details to thehive to create alert
+- Send email to SOC analyst to begin investigation 
+
+- Change parameters in Change me to Execution argument - hashes 
+- For the Regex parameter, create a command. ChatGPT useful here
+
+![image](https://github.com/Mutimber/SOC-Automation-Lab/assets/113706552/62b3a2d7-ac09-40b3-998a-87dd4d048091)
+
+![image](https://github.com/Mutimber/SOC-Automation-Lab/assets/113706552/1302b9ce-1bec-4eb5-925e-12115e7dd30d)
+- Upon checking workflows, SHA256 parsing is a success
+ ![image](https://github.com/Mutimber/SOC-Automation-Lab/assets/113706552/98130cc6-846e-4552-a042-4fdae2c5eb11)
+
+- Change me => SHA256_Regex
+![image](https://github.com/Mutimber/SOC-Automation-Lab/assets/113706552/2e192469-b000-4443-8121-c50366d6b12d)
+- Link to VirusTotal API
+	- Create an account
+ - copy API Key for authentication
+![image](https://github.com/Mutimber/SOC-Automation-Lab/assets/113706552/4e894af9-663c-4b64-bdb8-554b0ebc1953)
+
+ - Add VirusTotal on Shuffle and configure using the API key, SHA256-Regex and hash - generate hash report
+![image](https://github.com/Mutimber/SOC-Automation-Lab/assets/113706552/90a08480-001b-47a6-af80-418240a13b23)
+- We get a 404 error when we run VirusTotal hash, indicating a potential problem
+- Change url to virustotal recommended one
+![image](https://github.com/Mutimber/SOC-Automation-Lab/assets/113706552/1acc9522-45f7-43f3-ba71-0e0ffa29d0cc)
+![image](https://github.com/Mutimber/SOC-Automation-Lab/assets/113706552/955e6ac1-d2d1-439b-b50c-90674b15b7bc)
+- You can view the file's results in detail to ID how many scans show a malicious file in VirusTotal.
+![image](https://github.com/Mutimber/SOC-Automation-Lab/assets/113706552/a7223a37-c95e-43f8-aaa9-a36843442bd1)
+
+  - Now add TheHive case manager on Shuffle
+  - First, create new organisation and users on theHive GUI
+
+![image](https://github.com/Mutimber/SOC-Automation-Lab/assets/113706552/f9a1b4cc-a49a-491b-b49c-cbc7abb1751f)
+
+- Create password for the first user account
+- Create API key for the second user account
+- Logout of admin account and use the first user creds to log into thehive
+![image](https://github.com/Mutimber/SOC-Automation-Lab/assets/113706552/9e37bf5c-859b-4f6c-8530-96d7b0f26e20)
+- Authenticate thehive using the API Key from above and add thehive public IP:9000
+![image](https://github.com/Mutimber/SOC-Automation-Lab/assets/113706552/4cf2bf66-1e15-487b-a727-4fb487761655)
+- Add new firewall rule to allow TCP access to thehive using port 9000 from all IPV4
+
+![image](https://github.com/Mutimber/SOC-Automation-Lab/assets/113706552/5f8d7441-cede-4fe8-b7cb-25a2949d0bda)
+- With correct configuration on various data fields, Shuffle should send alerts to the thehive GUI as shown below
+![image](https://github.com/Mutimber/SOC-Automation-Lab/assets/113706552/e525bc7b-8cae-4335-8cc0-42efbe0f29d6)
+![image](https://github.com/Mutimber/SOC-Automation-Lab/assets/113706552/c485174f-575c-4388-bf1a-85b8a920b4d5)
+- Now link Email on Shuffle
+![image](https://github.com/Mutimber/SOC-Automation-Lab/assets/113706552/04c1ef5b-3dc9-4188-8963-4f784f053945)
+- Add email address, body text, and subject and run workflow to email the SOC analyst
+
+## Build a an Automatic Response
+## Use Ubuntu machine
+ - TBD
+
+
+
+
+
+
+
+
+
 
 
